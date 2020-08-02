@@ -1,12 +1,12 @@
 <h1 align="center">
-  <img src="./assets/showcase/logo_01.png" alt="" height="200">
+  fetchpac
 </h1>
 <h4 align="center">A command-line tool written in Bash for printing system package information.</h4>
 <br>
 
-<img src="./assets/showcase/showcase_01.png" alt="neofetch" align="right" height="240px">
-
 ### What is fetchpac?
+
+<img src="./assets/showcase/showcase_01.png" alt="neofetch" align="right" height="240px">
 
 Fetchpac is a command-line tool written in Bash for printing information about packages installed on your system in an aesthetic and visually pleasing way. It works for Arch Linux and Arch-based Linux distributions using the pacman package manager.
 
