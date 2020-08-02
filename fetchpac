@@ -178,27 +178,27 @@ print_info() {
     get_packages
 
     # Total (T=E+D=F+N):  903     (pacman -Qq)
-    info="${color_title}Total (T=E+D=F+N):\t ${color_text}${pkg_total}"
+    info="${color_title}Total (T=E+D=F+N):\t${color_text}${pkg_total}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Explicit (E):       203     (pacman -Qeq)
-    info="${color_title}Explicit (E):\t ${color_text}${pkg_explicit}"
+    info="${color_title}Explicit (E):\t${color_text}${pkg_explicit}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # Dependency(D):      700     (pacman -Qdq)
-    info="${color_title}Dependency (D):\t ${color_text}${pkg_depends}"
+    info="${color_title}Dependency (D):\t${color_text}${pkg_depends}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Native (N):         897     (pacman -Qnq)
-    info="${color_title}Native (N):\t\t ${color_text}${pkg_native}"
+    info="${color_title}Native (N):\t\t${color_text}${pkg_native}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Foreign (F):        6       (pacman -Qmq)
-    info="${color_title}Foreign (F):\t\t ${color_text}${pkg_foreign}"
+    info="${color_title}Foreign (F):\t\t${color_text}${pkg_foreign}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Orphan (O):         2       (pacman -Qdtq)   
-    info="${color_title}Orphan (O):\t\t ${color_text}${pkg_orphan}"
+    info="${color_title}Orphan (O):\t\t${color_text}${pkg_orphan}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # newline
@@ -206,18 +206,20 @@ print_info() {
     
     # Package cache size:   3.2G
     get_cache_size
-    info="${color_title}Package cache size:\t ${color_text}${pkg_cache_size}"
-    printf '%b\n' "\e[${text_padding}C${info//\\n}"
-    
-    # Full system upgrade:  Thu 30-Jul-2020 (15:07 PM)
-    get_upgrade_time
-    info="${color_title}Full system upgrade:\t ${color_text}${upgrade_time}"
+    info="${color_title}Cache size:\t${color_text}${pkg_cache_size}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Synced package list:  Thu 30-Jul-2020 (15:07 PM)
     get_synchronize_time
-    info="${color_title}Synced package list:\t ${color_text}${synchronize_time}"
+    info="${color_title}Latest -Sy:\t${color_text}${synchronize_time}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
+
+    # Full system upgrade:  Thu 30-Jul-2020 (15:07 PM)
+    get_upgrade_time
+    info="${color_title}Latest -Su:\t${color_text}${upgrade_time}"
+    printf '%b\n' "\e[${text_padding}C${info//\\n}"
+    
+    
 }
 
 print_color_blocks() {
@@ -353,7 +355,8 @@ get_cache_size() {
 get_upgrade_time() {
     tmp=$(tac /var/log/pacman.log | grep -i -m1 "starting full system upgrade")
     tmp=${tmp:1:24}
-    upgrade_time=$(date -d "${tmp}" "+%a %d-%b-%Y (%R HRS)")
+    # upgrade_time=$(date -d "${tmp}" "+%a %d-%b-%Y (%R HRS)")
+    upgrade_time=$(date -d "${tmp}" "+%a %d-%b-%Y")
 }
 
 # get time of most recent synchronization of package lists
@@ -364,7 +367,8 @@ get_upgrade_time() {
 get_synchronize_time() {
     tmp=$(tac /var/log/pacman.log | grep -i -m1 "synchronizing package lists")
     tmp=${tmp:1:24}
-    synchronize_time=$(date -d "${tmp}" "+%a %d-%b-%Y (%R HRS)")
+    # synchronize_time=$(date -d "${tmp}" "+%a %d-%b-%Y (%R HRS)")
+    synchronize_time=$(date -d "${tmp}" "+%a %d-%b-%Y")
 }
 
 main
