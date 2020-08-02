@@ -1,6 +1,5 @@
-<h1 align="center">
-  fetchpac
-</h1>
+<h1 align="center">fetchpac</h1>
+
 <h4 align="center">A command-line tool written in Bash for printing system package information.</h4>
 <br>
 
@@ -23,5 +22,5 @@ More command-line options will continue to be added to customize the appearance,
 Fetchpac was heavily inspired by tools such as screenfetch and neofetch that would "fetch" information about your system and display them in a similar format. The "pac" was so named because fetchpac displays package information, and utilizes the pacman package manager.  
 
 <p align="center">
-  <img src="./assets/showcase/showcase_02.png" alt="" height="240">
+  <img src="./assets/showcase/showcase_02.png" alt="" height="240px">
 </p>
