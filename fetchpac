@@ -13,35 +13,35 @@ reset='\e[0m'
 bold='\e[1m'
 underlined='\e[4m'
 
-color_default='\e[39m'
+color_default='\e[39m'          # 16 - default color defined by terminal
 
-color_black='\e[30m'
-color_red='\e[31m'
-color_green='\e[32m'
-color_yellow='\e[33m'
-color_blue='\e[34m'
-color_magenta='\e[35m'
-color_cyan='\e[36m'
-color_light_gray='\e[37m'
+color_black='\e[30m'            # 0
+color_red='\e[31m'              # 1
+color_green='\e[32m'            # 2
+color_yellow='\e[33m'           # 3
+color_blue='\e[34m'             # 4
+color_magenta='\e[35m'          # 5
+color_cyan='\e[36m'             # 6
+color_light_gray='\e[37m'       # 7
 
-color_dark_gray='\e[90m'
-color_light_red='\e[91m'
-color_light_green='\e[92m'
-color_light_yellow='\e[93m'
-color_light_blue='\e[94m'
-color_light_magenta='\e[95m'
-color_light_cyan='\e[96m'
-color_white='\e[97m'
+color_dark_gray='\e[90m'        # 8
+color_light_red='\e[91m'        # 9
+color_light_green='\e[92m'      # 10
+color_light_yellow='\e[93m'     # 11
+color_light_blue='\e[94m'       # 12
+color_light_magenta='\e[95m'    # 13
+color_light_cyan='\e[96m'       # 14
+color_white='\e[97m'            # 15
 
 # Variables for text formatting, with an initialized value
-gap=1                                       # gap between ascii image and system/package information
-c1=${bold}$color_yellow                     # c1 - ascii color of pacman body
-c2=${bold}$color_light_blue                 # c2 - ascii color of pacman eye
-c3=${bold}$color_cyan                       # c3 - ascii color of Arch Linux logo
+gap=1                           # gap between ascii image and system/package information
+a1=3                            # a1 - ascii color of pacman body       (default yellow)
+a2=12                           # a2 - ascii color of pacman eye        (default light blue)
+a3=6                            # a3 - ascii color of Arch Linux logo   (default cyan)
 
-color_header=${bold}$color_cyan             # color_header - color of information headers
-color_title=${bold}$color_green             # color_title - color of information titles
-color_text=${reset}                         # color_text - color of information text
+c1=6                            # c1 - information headers              (default cyan)
+c2=2                            # c2 - information titles               (default green)
+c3=16                           # c3 - information text                 (default default)
 
 # Variables storing information to be printed by print_info(), with examples
 # Provided here for an overall summary
@@ -68,6 +68,14 @@ color_text=${reset}                         # color_text - color of information 
 
 # this function, main, is called at the end of this file
 main() {
+    # file-defined variables and colors will override defaults
+    source /etc/fetchpac/fetchpac.conf 2> /dev/null             
+    source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null 
+
+    parse_args "$@"         # pass the arguments passed to main to parse_args()
+
+    convert_colors          # e.g. convert a1 from "3" to "\e[1m\e[33m" (bold yellow)
+
     get_ascii               # read ascii image into a variable
     print_ascii             # print ascii image to terminal
 
@@ -79,9 +87,97 @@ main() {
     printf "\n"
 }
 
-# reset text formatting
-reset_format() {
-    printf '\e[0m'
+# Parse arguments passed to fetchpac 
+# Available options: -hrac
+parse_args() {
+    while [[ "$1" ]]; do
+        case $1 in
+            "-"*)                   # catch only params starting with "-"
+                [[ $1 == *"h"* ]] && print_help
+                [[ $1 == *"r"* ]] && randomize_colors
+
+                # if parameter "-xyaz" contains an 'a'
+                # if $2 does not start with '-' AND $2 is not empty, a1=$2
+                # if $3 does not start with '-' AND $3 is not empty, a2=$3
+                # if $4 does not start with '-' AND $4 is not empty, a3=$4
+                if [[ $1 == *"a"* ]]; then
+                    if [[ $2 != "-"* && ! -z $2 ]]; then a1=$2
+                        if [[ $3 != "-"* && ! -z $3 ]]; then a2=$3 
+                            if [[ $4 != "-"* && ! -z $4 ]]; then a3=$4
+                            fi
+                        fi
+                    fi
+                fi
+
+                # if parameter "-xycz" contains a 'c'
+                # same code snippet as above
+                if [[ $1 == *"c"* ]]; then
+                    if [[ $2 != "-"* && ! -z $2 ]]; then c1=$2
+                        if [[ $3 != "-"* && ! -z $3 ]]; then c2=$3 
+                            if [[ $4 != "-"* && ! -z $4 ]]; then c3=$4
+                            fi
+                        fi
+                    fi
+                fi
+        esac
+
+        shift
+    done
+}
+
+# Print help text and exit the fetchpac process
+print_help() {
+    help_text="
+Usage: fetchpac [OPTION]
+A CLI tool written in Bash for printing system package information.
+Uses configuration files and default values if no OPTION is provided.
+
+----- Options -----
+INFO:
+    -h                  Print this text and exit
+
+COLOR:
+    -r                  Randomize colors of ASCII image and information text
+    -a a1 a2 a3         Set colors of ASCII image
+    -c c1 c2 c3         Set colors of information text 
+
+----- Examples -----
+    -hrac 4 5 6         -h option overrides all others. Print this text and exit
+    -r                  Randomize colors of ASCII image and information text
+    -a 4 5 6            Set colors of ASCII image a1, a2, a3
+    -a 7 8              Set colors of ASCII image a1, a2
+    -c 4 5 6            Set colors of information text c1, c2, c3
+    -c 7 8              Set colors of information text c1, c2
+    -ac 4 5 6           Set colors of a1, a2, a3, c1, c2, c3
+    -ac 7 8             Set colors of a1, a2, c1, c2
+    -a 4 5 -c 6 7       Set colors of a1, a2, c1, c2 separately
+    -rac 7 8            Randomize all colors, then set a1, a2, c1, c2
+    -ac 7 8 -r          Set a1, a2, c1, c2, and then randomize all colors
+"
+    echo "$help_text"
+    exit
+}
+
+# Randomize each of the 6 color variables to be from 0 to 15 inclusive
+randomize_colors() {
+    a1=$(( $RANDOM % 16 ))      # set a1 to random number from 0 to 15 inclusive
+    a2=$(( $RANDOM % 16 ))
+    a3=$(( $RANDOM % 16 ))
+    c1=$(( $RANDOM % 16 ))
+    c2=$(( $RANDOM % 16 ))
+    c3=$(( $RANDOM % 16 ))
+}
+
+convert_colors() {
+    color_nums=( 3{0..7} 9{0..7} 39 )       # array of ( 30 31 .. 37 90 91 .. 97 39 )
+
+    a1="${bold}\e[${color_nums[a1]}m"       # convert a1 from "3" to "\e[1m\e[33m"
+    a2="${bold}\e[${color_nums[a2]}m"       # also apply bold
+    a3="${bold}\e[${color_nums[a3]}m"       # if array index is invalid, value defaults to 30
+
+    c1="${bold}\e[${color_nums[c1]}m"
+    c2="${bold}\e[${color_nums[c2]}m"
+    c3="${reset}\e[${color_nums[c3]}m"
 }
 
 # read ascii image into a variable
@@ -92,19 +188,19 @@ get_ascii() {
     ascii_len=50
     
     read -rd '' ascii_image <<'EOF'
-${c1}          `poooooooooooooooooooo
+${a1}          `poooooooooooooooooooo
        `meeeeeeeeeeeeeeeeeeeeeeeeee
      `meeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-   `meeeeeeeeeee${c2}#%#${c1}eeeeeeeeeeeeeeeeeee
-  `meeeeeeeeee${c2}#%   %#${c1}eeeeeeeeeeeeeeeeee
-`meeeeeeeeeeeeee${c2}#%#${c1}eeeeeeeeeeeeeeeeee   
+   `meeeeeeeeeee${a2}#%#${a1}eeeeeeeeeeeeeeeeeee
+  `meeeeeeeeee${a2}#%   %#${a1}eeeeeeeeeeeeeeeeee
+`meeeeeeeeeeeeee${a2}#%#${a1}eeeeeeeeeeeeeeeeee   
 <eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee     
-oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee       ${c3} `/\` ${c1}
-<eeeeeeeeeeeeeeeeeeeeeeeeeeeee        ${c3} ./%%\. ${c1}
-oeeeeeeeeeeeeeeeeeeeeeeeeeee         ${c3} `/%%%%\` ${c1}
-<eeeeeeeeeeeeeeeeeeeeeeeee         ${c3}  ./%%%%%%\. ${c1}
-oeeeeeeeeeeeeeeeeeeeeeeeeeee      ${c3}  ./%%_mm_%%\. ${c1}
-<eeeeeeeeeeeeeeeeeeeeeeeeeeeee   ${c3}  */_-`    `-_\* ${c1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee       ${a3} `/\` ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeee        ${a3} ./%%\. ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeee         ${a3} `/%%%%\` ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeee         ${a3}  ./%%%%%%\. ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeee      ${a3}  ./%%_mm_%%\. ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeee   ${a3}  */_-`    `-_\* ${a1}
 oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 <eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 `<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
@@ -120,9 +216,9 @@ EOF
 print_ascii() {
     # LC_ALL=${LANG:-C}
 
-    ascii_image="${ascii_image//\$\{c1\}/$c1}"        # replace "${c1}" in image with '\e[33m',
-    ascii_image="${ascii_image//\$\{c2\}/$c2}"        # required as printf below does not have interpolation
-    ascii_image="${ascii_image//\$\{c3\}/$c3}"
+    ascii_image="${ascii_image//\$\{a1\}/$a1}"        # replace "${a1}" in image with '\e[33m',
+    ascii_image="${ascii_image//\$\{a2\}/$a2}"        # required as printf below does not have interpolation
+    ascii_image="${ascii_image//\$\{a3\}/$a3}"
     ascii_image="${ascii_image//\$\{c4\}/$c4}"
     ascii_image="${ascii_image//\$\{c5\}/$c5}"
     ascii_image="${ascii_image//\$\{c6\}/$c6}"
@@ -144,61 +240,61 @@ print_info() {
     # --- sky@skyarch ---
     get_user
     get_hostname
-    info="${color_header}--- ${user}@${hostname} ---"
+    info="${c1}--- ${user}@${hostname} ---"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"     # \e[51C moves cursor 51 columns to the right
                                                         # remove newline from expanded ${info} before print
     # OS: Arch Linux
     get_distro
-    info="${color_title}OS: ${color_text}${distro}"
+    info="${c2}OS: ${c3}${distro}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # Kernel: 5.7.10-arch1-1
     get_kernel_release
-    info="${color_title}Kernel: ${color_text}${kernel_release}"
+    info="${c2}Kernel: ${c3}${kernel_release}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Device: Inspiron 7590
     get_model
-    info="${color_title}Device: ${color_text}${model}"
+    info="${c2}Device: ${c3}${model}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Uptime: 2 days, 10 hours, 3 mins
     get_uptime
-    info="${color_title}Uptime: ${color_text}${uptime}"
+    info="${c2}Uptime: ${c3}${uptime}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # newline
     printf "\n"
 
     # ----- Packages -----
-    info="${color_header}----- Packages -----"
+    info="${c1}----- Packages -----"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # set pkg_total, pkg_explicit, pkg_depends, etc
     get_packages
 
     # Total (T=E+D=F+N):  903     (pacman -Qq)
-    info="${color_title}Total (T=E+D=F+N):\t${color_text}${pkg_total}"
+    info="${c2}Total (T=E+D=F+N):\t${c3}${pkg_total}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Explicit (E):       203     (pacman -Qeq)
-    info="${color_title}Explicit (E):\t${color_text}${pkg_explicit}"
+    info="${c2}Explicit (E):\t${c3}${pkg_explicit}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # Dependency(D):      700     (pacman -Qdq)
-    info="${color_title}Dependency (D):\t${color_text}${pkg_depends}"
+    info="${c2}Dependency (D):\t${c3}${pkg_depends}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Native (N):         897     (pacman -Qnq)
-    info="${color_title}Native (N):\t\t${color_text}${pkg_native}"
+    info="${c2}Native (N):\t\t${c3}${pkg_native}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Foreign (F):        6       (pacman -Qmq)
-    info="${color_title}Foreign (F):\t\t${color_text}${pkg_foreign}"
+    info="${c2}Foreign (F):\t\t${c3}${pkg_foreign}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Orphan (O):         2       (pacman -Qdtq)   
-    info="${color_title}Orphan (O):\t\t${color_text}${pkg_orphan}"
+    info="${c2}Orphan (O):\t\t${c3}${pkg_orphan}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # newline
@@ -206,20 +302,18 @@ print_info() {
     
     # Package cache size:   3.2G
     get_cache_size
-    info="${color_title}Cache size:\t${color_text}${pkg_cache_size}"
+    info="${c2}Cache size:\t${c3}${pkg_cache_size}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Synced package list:  Thu 30-Jul-2020 (15:07 PM)
     get_synchronize_time
-    info="${color_title}Latest -Sy:\t${color_text}${synchronize_time}"
+    info="${c2}Latest -Sy:\t${c3}${synchronize_time}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # Full system upgrade:  Thu 30-Jul-2020 (15:07 PM)
     get_upgrade_time
-    info="${color_title}Latest -Su:\t${color_text}${upgrade_time}"
+    info="${c2}Latest -Su:\t${c3}${upgrade_time}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
-    
-    
 }
 
 print_color_blocks() {
@@ -371,4 +465,9 @@ get_synchronize_time() {
     synchronize_time=$(date -d "${tmp}" "+%a %d-%b-%Y")
 }
 
-main
+# reset text formatting
+reset_format() {
+    printf '\e[0m'
+}
+
+main "$@"           # pass the arguments passed to fetchpac to function main()

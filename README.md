@@ -15,6 +15,19 @@ The overall goal of fetchpac is to provide a quick and broad overview of package
 
 It displays the total number of packages, split into different categories: explicit, dependency, native, foreign, orphan; the total size of package caches; and time of most recent full system upgrade and most recent synchronized package list.
 
+### Installation
+
+This package is hosted on the Arch User Repository at <a href="https://aur.archlinux.org/packages/fetchpac-git">https://aur.archlinux.org/packages/fetchpac-git</a>. You may also install the package manually:
+```
+git clone https://github.com/sky-aw/fetchpac.git
+cd fetchpac
+make install
+```
+
+### Customizations
+
+You can customize the display colors with 6 separate variables, 3 for the ASCII image, and 3 for the system and package information. Each variable has 17 color options. The final colors are selected, from high to low precedence: command-line arguments, /etc/fetchpac/fetchpac.conf, $HOME/.config/fetchpac/fetchpac.conf.
+
 More command-line options will continue to be added to customize the appearance, verbosity of displayed information, and explanations on package maintenance.
 
 ### Why is it called fetchpac?
