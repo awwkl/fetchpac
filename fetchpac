@@ -68,6 +68,9 @@ color_text=${reset}                         # color_text - color of information 
 
 # this function, main, is called at the end of this file
 main() {
+    source /etc/fetchpac/fetchpac.conf 2> /dev/null             # file-defined variables and colors 
+    source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null  # will override defaults
+
     get_ascii               # read ascii image into a variable
     print_ascii             # print ascii image to terminal
 
