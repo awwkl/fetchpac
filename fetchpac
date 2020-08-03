@@ -72,6 +72,8 @@ main() {
     source /etc/fetchpac/fetchpac.conf 2> /dev/null             
     source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null 
 
+    parse_args "$@"         # pass the arguments passed to main to parse_args()
+
     convert_colors          # e.g. convert a1 from "3" to "\e[1m\e[33m" (bold yellow)
 
     get_ascii               # read ascii image into a variable
@@ -85,6 +87,87 @@ main() {
     printf "\n"
 }
 
+# Parse arguments passed to fetchpac 
+# Available options: -hrac
+parse_args() {
+    while [[ "$1" ]]; do
+        case $1 in
+            "-"*)                   # catch only params starting with "-"
+                [[ $1 == *"h"* ]] && print_help
+                [[ $1 == *"r"* ]] && randomize_colors
+
+                # if parameter "-xyaz" contains an 'a'
+                # if $2 does not start with '-' AND $2 is not empty, a1=$2
+                # if $3 does not start with '-' AND $3 is not empty, a2=$3
+                # if $4 does not start with '-' AND $4 is not empty, a3=$4
+                if [[ $1 == *"a"* ]]; then
+                    if [[ $2 != "-"* && ! -z $2 ]]; then a1=$2
+                        if [[ $3 != "-"* && ! -z $3 ]]; then a2=$3 
+                            if [[ $4 != "-"* && ! -z $4 ]]; then a3=$4
+                            fi
+                        fi
+                    fi
+                fi
+
+                # if parameter "-xycz" contains a 'c'
+                # same code snippet as above
+                if [[ $1 == *"c"* ]]; then
+                    if [[ $2 != "-"* && ! -z $2 ]]; then c1=$2
+                        if [[ $3 != "-"* && ! -z $3 ]]; then c2=$3 
+                            if [[ $4 != "-"* && ! -z $4 ]]; then c3=$4
+                            fi
+                        fi
+                    fi
+                fi
+        esac
+
+        shift
+    done
+}
+
+# Print help text and exit the fetchpac process
+print_help() {
+    help_text="
+Usage: fetchpac [OPTION]
+A CLI tool written in Bash for printing system package information.
+Uses configuration files and default values if no OPTION is provided.
+
+----- Options -----
+INFO:
+    -h                  Print this text and exit
+
+COLOR:
+    -r                  Randomize colors of ASCII image and information text
+    -a a1 a2 a3         Set colors of ASCII image
+    -c c1 c2 c3         Set colors of information text 
+
+----- Examples -----
+    -hrac 4 5 6         -h option overrides all others. Print this text and exit
+    -r                  Randomize colors of ASCII image and information text
+    -a 4 5 6            Set colors of ASCII image a1, a2, a3
+    -a 7 8              Set colors of ASCII image a1, a2
+    -c 4 5 6            Set colors of information text c1, c2, c3
+    -c 7 8              Set colors of information text c1, c2
+    -ac 4 5 6           Set colors of a1, a2, a3, c1, c2, c3
+    -ac 7 8             Set colors of a1, a2, c1, c2
+    -a 4 5 -c 6 7       Set colors of a1, a2, c1, c2 separately
+    -rac 7 8            Randomize all colors, then set a1, a2, c1, c2
+    -ac 7 8 -r          Set a1, a2, c1, c2, and then randomize all colors
+"
+    echo "$help_text"
+    exit
+}
+
+# Randomize each of the 6 color variables to be from 0 to 15 inclusive
+randomize_colors() {
+    a1=$(( $RANDOM % 16 ))      # set a1 to random number from 0 to 15 inclusive
+    a2=$(( $RANDOM % 16 ))
+    a3=$(( $RANDOM % 16 ))
+    c1=$(( $RANDOM % 16 ))
+    c2=$(( $RANDOM % 16 ))
+    c3=$(( $RANDOM % 16 ))
+}
+
 convert_colors() {
     color_nums=( 3{0..7} 9{0..7} 39 )       # array of ( 30 31 .. 37 90 91 .. 97 39 )
 
@@ -95,11 +178,6 @@ convert_colors() {
     c1="${bold}\e[${color_nums[c1]}m"
     c2="${bold}\e[${color_nums[c2]}m"
     c3="${reset}\e[${color_nums[c3]}m"
-}
-
-# reset text formatting
-reset_format() {
-    printf '\e[0m'
 }
 
 # read ascii image into a variable
@@ -236,8 +314,6 @@ print_info() {
     get_upgrade_time
     info="${c2}Latest -Su:\t${c3}${upgrade_time}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
-    
-    
 }
 
 print_color_blocks() {
@@ -389,4 +465,9 @@ get_synchronize_time() {
     synchronize_time=$(date -d "${tmp}" "+%a %d-%b-%Y")
 }
 
-main
+# reset text formatting
+reset_format() {
+    printf '\e[0m'
+}
+
+main "$@"           # pass the arguments passed to fetchpac to function main()
