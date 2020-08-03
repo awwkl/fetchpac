@@ -24,11 +24,11 @@ cd fetchpac
 make install
 ```
 
-### Customizations
+### Customization
 
-You can customize the display colors with 6 separate variables, 3 for the ASCII image, and 3 for the system and package information. Each variable has 17 color options. The final colors are selected, from high to low precedence: command-line arguments, /etc/fetchpac/fetchpac.conf, $HOME/.config/fetchpac/fetchpac.conf.
+You can customize the display colors with 6 separate variables, 3 for the ASCII image, and 3 for the system and package information. Each variable has 17 color options. The final colors are selected using, from high to low precedence: command-line arguments, $HOME/.config/fetchpac/fetchpac.conf, /etc/fetchpac/fetchpac.conf. There is also an option to randomize all 6 color variables, which can be used alongside force-setting one or more of the variables.
 
-More command-line options will continue to be added to customize the appearance, verbosity of displayed information, and explanations on package maintenance.
+More options will continue to be added to customize the appearance, verbosity of displayed information, and explanations on package maintenance.
 
 ### Why is it called fetchpac?
 
