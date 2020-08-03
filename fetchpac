@@ -68,8 +68,9 @@ c3=16                           # c3 - information text                 (default
 
 # this function, main, is called at the end of this file
 main() {
-    source /etc/fetchpac/fetchpac.conf 2> /dev/null             # file-defined variables and colors 
-    source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null  # will override defaults
+    # file-defined variables and colors will override defaults
+    source /etc/fetchpac/fetchpac.conf 2> /dev/null             
+    source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null 
 
     convert_colors          # e.g. convert a1 from "3" to "\e[1m\e[33m" (bold yellow)
 
