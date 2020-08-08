@@ -68,6 +68,8 @@ c3=16                           # c3 - information text                 (default
 
 # this function, main, is called at the end of this file
 main() {
+    get_system_info         # call script functions to get system info
+
     # file-defined variables and colors will override defaults
     source /etc/fetchpac/fetchpac.conf 2> /dev/null             
     source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null 
@@ -79,12 +81,22 @@ main() {
     get_ascii               # read ascii image into a variable
     print_ascii             # print ascii image to terminal
 
+    get_package_info        # call script functions to get package info
     print_info              # print information about system and system packages
 
     print_color_blocks      # print color blocks, for aesthetics and to display color options
 
     printf "\n"             # print newlines for vertical padding
     printf "\n"
+}
+
+get_system_info() {
+    get_user
+    get_hostname
+    get_distro
+    get_kernel_release
+    get_model
+    get_uptime
 }
 
 # Parse arguments passed to fetchpac 
@@ -238,28 +250,22 @@ print_ascii() {
 # ${info} is a temp variable used to hold the formatted text to be printed by printf
 print_info() {
     # --- sky@skyarch ---
-    get_user
-    get_hostname
     info="${c1}--- ${user}@${hostname} ---"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"     # \e[51C moves cursor 51 columns to the right
                                                         # remove newline from expanded ${info} before print
     # OS: Arch Linux
-    get_distro
     info="${c2}OS: ${c3}${distro}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # Kernel: 5.7.10-arch1-1
-    get_kernel_release
     info="${c2}Kernel: ${c3}${kernel_release}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Device: Inspiron 7590
-    get_model
     info="${c2}Device: ${c3}${model}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Uptime: 2 days, 10 hours, 3 mins
-    get_uptime
     info="${c2}Uptime: ${c3}${uptime}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
@@ -270,9 +276,6 @@ print_info() {
     info="${c1}----- Packages -----"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
-    # set pkg_total, pkg_explicit, pkg_depends, etc
-    get_packages
-
     # Total (T=E+D=F+N):  903     (pacman -Qq)
     info="${c2}Total (T=E+D=F+N):\t${c3}${pkg_total}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
@@ -424,7 +427,7 @@ get_uptime() {
 # ${pkg_depends}
 # ${pkg_native}
 # ${pkg_foreign}
-get_packages() {
+get_package_info() {
     pkg_total=$(pacman -Qq | wc -l)
     pkg_explicit=$(pacman -Qeq | wc -l)
     pkg_depends=$(pacman -Qdq | wc -l)
