@@ -43,13 +43,13 @@ c1=6                            # c1 - information headers              (default
 c2=2                            # c2 - information titles               (default green)
 c3=16                           # c3 - information text                 (default default)
 
-# Variables storing information to be printed by print_info(), with examples
+# Variables storing system info, to be printed by print_info(), with examples
 # Provided here for an overall summary
 ### user                    (sky)
 ### hostname                (skyarch)
 ### distro                  (Arch Linux)
 ### kernel_release          (5.7.10-arch1-1)
-### model                   (Inspiron 7590)
+### device                  (Inspiron 7590)
 ### uptime                  (2 days, 10 hours, 3 mins)
 ### uptime_days             (2)
 ### uptime_hours            (10)
@@ -95,7 +95,7 @@ get_system_info() {
     get_hostname
     get_distro
     get_kernel_release
-    get_model
+    get_device
     get_uptime
 }
 
@@ -262,7 +262,7 @@ print_info() {
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Device: Inspiron 7590
-    info="${c2}Device: ${c3}${model}"
+    info="${c2}Device: ${c3}${device}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Uptime: 2 days, 10 hours, 3 mins
@@ -386,15 +386,15 @@ get_kernel_release() {
     kernel_release=$(uname -r)
 }
 
-# get device model, e.g. "Inspiron 7590"
-# ${model}
-get_model() {
+# get device, e.g. "Inspiron 7590"
+# ${device}
+get_device() {
     if [[   -f /sys/devices/virtual/dmi/id/product_name ||
             -f /sys/devices/virtual/dmi/id/product_version ]]; then
-        model=$(< /sys/devices/virtual/dmi/id/product_name)
-        model+=" $(< /sys/devices/virtual/dmi/id/product_version)"
+        device=$(< /sys/devices/virtual/dmi/id/product_name)
+        device+=" $(< /sys/devices/virtual/dmi/id/product_version)"
     else
-        model="Unknown"
+        device="Unknown"
     fi
 }
 
