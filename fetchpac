@@ -4,9 +4,12 @@
 ### This utility is useful for system maintenance and tracking of system installed packages. It displays the total number of packages (explicit, dependency, native, foreign, orphan); package cache size; and time of most recent full system upgrade and most recent synchronized package list.
 ### More information and command-line options will continue to be added. This includes appearance customization, verbosity, and printing explanations.
 
-# Force the C locale for faster execution of script
+# Use the C locale for faster execution of script
 LC_ALL=C
 LANG=C
+
+# Case-insensitive matching of patterns
+shopt -s nocasematch
 
 # Text Format Variables
 reset='\e[0m'
@@ -42,6 +45,19 @@ a3=6                            # a3 - ascii color of Arch Linux logo   (default
 c1=6                            # c1 - information headers              (default cyan)
 c2=2                            # c2 - information titles               (default green)
 c3=16                           # c3 - information text                 (default default)
+
+### How is ASCII design and color set?
+### (1) Within fetchpac script, automatically
+###         => get_system_info() => get_distro() => set ascii_design=distro
+### (2) Read config files 
+###         => read variable for ascii_design 
+###         => tweak_ascii() to change ascii colors depending on ascii_design
+###         => read variables for ascii colors
+### (3) parse_args() to read cmdline arguments
+### (4) print_ascii() to print ASCII image
+
+# Variable for selecting what ASCII design to print
+# ascii_design              # "Manjaro", "Arch" (default), etc.
 
 # Variables storing system info, to be printed by print_info(), with examples
 # Provided here for an overall summary
@@ -97,6 +113,17 @@ get_system_info() {
     get_kernel_release
     get_device
     get_uptime
+}
+
+tweak_ascii() {
+    case "${ascii_design}" in
+        *"Manjaro"*)
+            a3=2                # change Manjaro logo to green color
+            c1=2                # change Header text to green color
+            c2=5                # change Title text to blue color
+            ;;
+        *)
+    esac 
 }
 
 # Parse arguments passed to fetchpac 
@@ -196,10 +223,41 @@ convert_colors() {
 # ascii_height is vertical height of ascii image
 # ascii_len is horizontal length of ascii image
 get_ascii() {
-    ascii_height=21
-    ascii_len=50
-    
-    read -rd '' ascii_image <<'EOF'
+    case "${ascii_design}" in 
+        *"Manjaro"*)
+            ascii_height=21
+            ascii_len=50
+            
+            read -rd '' ascii_image <<'EOF'
+${a1}          `poooooooooooooooooooo
+       `meeeeeeeeeeeeeeeeeeeeeeeeee
+     `meeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+   `meeeeeeeeeee${a2}#%#${a1}eeeeeeeeeeeeeeeeeee
+  `meeeeeeeeee${a2}#%   %#${a1}eeeeeeeeeeeeeeeeee
+`meeeeeeeeeeeeee${a2}#%#${a1}eeeeeeeeeeeeeeeeee   
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee     
+oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee    
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeee     ${a3} ███████ ███ ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeee       ${a3} ███████ ███ ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeee         ${a3} ███     ███ ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeee       ${a3} ███ ███ ███ ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeee     ${a3} ███ ███ ███ ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee   ${a3} ███ ███ ███ ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+`<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+  `<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+   `<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+      `<eeeeeeeeeeeeeeeeeeeeeeeeee
+          `<eeeeeeeeeeeeeeeeee
+                `<~~~~~~
+EOF
+            ;;
+
+        *)
+            ascii_height=21
+            ascii_len=50
+            
+            read -rd '' ascii_image <<'EOF'
 ${a1}          `poooooooooooooooooooo
        `meeeeeeeeeeeeeeeeeeeeeeeeee
      `meeeeeeeeeeeeeeeeeeeeeeeeeeeeee
@@ -222,6 +280,8 @@ oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
           `<eeeeeeeeeeeeeeeeee
                 `<~~~~~~
 EOF
+            ;;
+    esac
 }
 
 # print ascii image out to terminal
@@ -378,6 +438,8 @@ get_distro() {
     else
         distro="Arch Linux"
     fi
+
+    ascii_design=distro
 }
 
 # kernel version, e.g. "5.7.10-arch1-1"
