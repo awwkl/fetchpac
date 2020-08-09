@@ -133,7 +133,9 @@ parse_args() {
         case $1 in
             "-"*)                   # catch only params starting with "-"
                 [[ $1 == *"h"* ]] && print_help
+                [[ $1 == *"d"* ]] && ascii_design=$2 && tweak_ascii
                 [[ $1 == *"r"* ]] && randomize_colors
+
 
                 # if parameter "-xyaz" contains an 'a'
                 # if $2 does not start with '-' AND $2 is not empty, a1=$2
@@ -167,7 +169,7 @@ parse_args() {
 # Print help text and exit the fetchpac process
 print_help() {
     help_text="
-Usage: fetchpac [OPTION]
+Usage: fetchpac [OPTION]...
 A CLI tool written in Bash for printing system package information.
 Uses configuration files and default values if no OPTION is provided.
 
@@ -179,6 +181,7 @@ COLOR:
     -r                  Randomize colors of ASCII image and information text
     -a a1 a2 a3         Set colors of ASCII image
     -c c1 c2 c3         Set colors of information text 
+    -d manjaro          Set ASCII design and colors to Manjaro's
 
 ----- Examples -----
     -hrac 4 5 6         -h option overrides all others. Print this text and exit
@@ -192,6 +195,9 @@ COLOR:
     -a 4 5 -c 6 7       Set colors of a1, a2, c1, c2 separately
     -rac 7 8            Randomize all colors, then set a1, a2, c1, c2
     -ac 7 8 -r          Set a1, a2, c1, c2, and then randomize all colors
+    -d manjaro -r       Set ASCII design and colors to Manjaro's, then randomize all colors
+    -dr manjaro         Set ASCII design and colors to Manjaro's, then randomize all colors
+    -r -d manjaro       Randomize all colors, then set ASCII design and colors to Manjaro's
 "
     echo "$help_text"
     exit
