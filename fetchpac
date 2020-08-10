@@ -127,12 +127,27 @@ get_system_info() {
 
 tweak_ascii_colors() {
     case "${ascii_design}" in
-        *"Manjaro"*)
-            a3=2                # change Manjaro logo to green color
-            c1=2                # change Header text to green color
-            c2=5                # change Title text to blue color
+        # Catch the MORE SPECIFIC designs first
+        # This catches "DarkTux" preferentially over "Tux", as well as for avoiding typos
+        # Case-insensitive; earlier executed "shopt -s nocasematch"
+        *"darkArch"* | *"darkManjaro"* | *"darkTux"*)
+            a1=0
+            a2=1                # set pacman eye to Red
+            a3=1                # set small logo to Red
+            c1=1                # set Header text to Red color
+            c2=0
             ;;
-        *)
+        *"Manjaro"*)
+            a3=2                # set Manjaro logo to Green color
+            c1=2                # set Header text to Green color
+            c2=5                # set Title text to Magenta color
+            ;;
+        *"Tux"*)
+            a1=0                # set pacman body to White color
+            a3=3                # set Tux logo to Yellow color
+            c1=3                # set Header text to Yellow color
+            c2=4                # set Title text to Blue color
+            ;;
     esac 
 }
 
@@ -269,6 +284,35 @@ oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee   ${a3} ███ ███ ███ ${a1}
 EOF
             ;;
 
+        *"Tux"*)
+            ascii_height=21
+            ascii_len=50
+            
+            read -rd '' ascii_image <<'EOF'
+${a1}          `poooooooooooooooooooo
+       `meeeeeeeeeeeeeeeeeeeeeeeeee
+     `meeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+   `meeeeeeeeeee${a2}#%#${a1}eeeeeeeeeeeeeeeeeee
+  `meeeeeeeeee${a2}#%   %#${a1}eeeeeeeeeeeeeeeeee
+`meeeeeeeeeeeeee${a2}#%#${a1}eeeeeeeeeeeeeeeeee   
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee     
+oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}  $$$$$ `              ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}   $     $ ``            ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}     $ @ @ $  `            ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeee${a3}       $  <  $               ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}   $$       $$             ${a1}
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}$  ${rs} .~~~. ${a3} $$  ${a1}
+oeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${rs} /     \ ${a3} $$      ${a1} 
+<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${rs}     \ ${a3} $      ${a1} 
+`<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}  (^~^~^)         ${a1}
+  `<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}~*\   /          ${a1}
+   `<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${a3}    \_/           ${a1}
+      `<eeeeeeeeeeeeeeeeeeeeeeeeee${a3}                     ${a1}
+          `<eeeeeeeeeeeeeeeeee
+                `<~~~~~~
+EOF
+            ;;
+
         *)
             ascii_height=21
             ascii_len=50
@@ -304,12 +348,14 @@ EOF
 print_ascii() {
     # LC_ALL=${LANG:-C}
 
-    ascii_image="${ascii_image//\$\{a1\}/$a1}"        # replace "${a1}" in image with '\e[33m',
-    ascii_image="${ascii_image//\$\{a2\}/$a2}"        # required as printf below does not have interpolation
+    ascii_image="${ascii_image//\$\{a1\}/$a1}"          # replace "${a1}" in image with '\e[33m',
+    ascii_image="${ascii_image//\$\{a2\}/$a2}"          # required as printf below does not have interpolation
     ascii_image="${ascii_image//\$\{a3\}/$a3}"
     ascii_image="${ascii_image//\$\{c4\}/$c4}"
     ascii_image="${ascii_image//\$\{c5\}/$c5}"
     ascii_image="${ascii_image//\$\{c6\}/$c6}"
+
+    ascii_image="${ascii_image//\$\{rs\}/$reset}"       # ${rs} used in ASCII image for resetting text format
 
     # print ascii image to terminal, then reset text formatting 
     printf '%b\n' "$ascii_image${reset}"
