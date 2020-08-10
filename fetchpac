@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-# Fetchpac: A CLI tool written in Bash for printing system package information.
-### This utility is useful for system maintenance and tracking of system installed packages. It displays the total number of packages (explicit, dependency, native, foreign, orphan); package cache size; and time of most recent full system upgrade and most recent synchronized package list.
-### More information and command-line options will continue to be added. This includes appearance customization, verbosity, and printing explanations.
+### Fetchpac: A CLI tool written in Bash for printing system package information.
+### This utility is useful for system maintenance and tracking of system installed packages. 
+### It displays the total number of packages (explicit, dependency, native, foreign, orphan); package cache size;
+### and time of most recent full system upgrade and most recent synchronized package list.
+### More information and command-line options will continue to be added. 
+### This includes appearance customization, verbosity, and printing explanations.
 
 # Use the C locale for faster execution of script
 LC_ALL=C
@@ -11,7 +14,7 @@ LANG=C
 # Case-insensitive matching of patterns
 shopt -s nocasematch
 
-# Text Format Variables
+# Text Format Constants
 reset='\e[0m'
 bold='\e[1m'
 underlined='\e[4m'
@@ -46,13 +49,15 @@ c1=6                            # c1 - information headers              (default
 c2=2                            # c2 - information titles               (default green)
 c3=16                           # c3 - information text                 (default default)
 
-### How is ASCII design and color set?
-### (1) Within fetchpac script, automatically
-###         => get_system_info() => get_distro() => set ascii_design=distro
-### (2) Read config files 
+### A procedural timeline of how ASCII design and color is set:
+### (1) From the fetchpac script, set default values for colors and system variables
+###         => default values for color variables { a1, a2, a3, c1, c2, c3 }
+###         => get_system_info() to set system information variables
+###         => get_distro(), and then set the ASCII design to be the script-detected distro
+### (2) Read /etc/fetchpac/fetchpac.conf, then ${HOME}/.config/fetchpac/fetchpac.conf
 ###         => read variable for ascii_design 
-###         => tweak_ascii() to change ascii colors depending on ascii_design
-###         => read variables for ascii colors
+###         => tweak_ascii_colors() to change ASCII colors depending on ascii_design
+###         => read variables for ASCII colors
 ### (3) parse_args() to read cmdline arguments
 ### (4) print_ascii() to print ASCII image
 
@@ -84,22 +89,27 @@ c3=16                           # c3 - information text                 (default
 
 # this function, main, is called at the end of this file
 main() {
-    get_system_info         # call script functions to get system info
+    get_system_info         # call script functions to detect system info
 
-    # file-defined variables and colors will override defaults
+    # --- Beginning of user configurations ---
+
     source /etc/fetchpac/fetchpac.conf 2> /dev/null             
     source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null 
 
     parse_args "$@"         # pass the arguments passed to main to parse_args()
-
+    
+    # --- End of user configurations ---
+    
     convert_colors          # e.g. convert a1 from "3" to "\e[1m\e[33m" (bold yellow)
 
     get_ascii               # read ascii image into a variable
     print_ascii             # print ascii image to terminal
 
-    get_package_info        # call script functions to get package info
-    print_info              # print information about system and system packages
+    print_system_info       # print information about system 
 
+    get_package_info        # call script functions to get package info
+    print_package_info      # print information about packages
+    
     print_color_blocks      # print color blocks, for aesthetics and to display color options
 
     printf "\n"             # print newlines for vertical padding
@@ -115,7 +125,7 @@ get_system_info() {
     get_uptime
 }
 
-tweak_ascii() {
+tweak_ascii_colors() {
     case "${ascii_design}" in
         *"Manjaro"*)
             a3=2                # change Manjaro logo to green color
@@ -133,7 +143,7 @@ parse_args() {
         case $1 in
             "-"*)                   # catch only params starting with "-"
                 [[ $1 == *"h"* ]] && print_help
-                [[ $1 == *"d"* ]] && ascii_design=$2 && tweak_ascii
+                [[ $1 == *"d"* ]] && ascii_design=$2 && tweak_ascii_colors
                 [[ $1 == *"r"* ]] && randomize_colors
 
 
@@ -312,9 +322,10 @@ print_ascii() {
     LC_ALL=C
 }
 
-# print system and package information
+# print system information
 # ${info} is a temp variable used to hold the formatted text to be printed by printf
-print_info() {
+print_system_info() {
+
     # --- sky@skyarch ---
     info="${c1}--- ${user}@${hostname} ---"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"     # \e[51C moves cursor 51 columns to the right
@@ -337,7 +348,9 @@ print_info() {
     
     # newline
     printf "\n"
+}
 
+print_package_info() {
     # ----- Packages -----
     info="${c1}----- Packages -----"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
@@ -370,17 +383,15 @@ print_info() {
     printf "\n"
     
     # Package cache size:   3.2G
-    get_cache_size
+
     info="${c2}Cache size:\t${c3}${pkg_cache_size}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
     
     # Synced package list:  Thu 30-Jul-2020 (15:07 PM)
-    get_synchronize_time
     info="${c2}Latest -Sy:\t${c3}${synchronize_time}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 
     # Full system upgrade:  Thu 30-Jul-2020 (15:07 PM)
-    get_upgrade_time
     info="${c2}Latest -Su:\t${c3}${upgrade_time}"
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 }
@@ -502,6 +513,10 @@ get_package_info() {
     pkg_native=$(pacman -Qnq | wc -l)
     pkg_foreign=$(pacman -Qmq | wc -l)
     pkg_orphan=$(pacman -Qdtq | wc -l)
+
+    get_cache_size
+    get_synchronize_time
+    get_upgrade_time
 }
 
 # get disk usage of package cache directory
