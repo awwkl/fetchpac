@@ -14,11 +14,17 @@ LANG=C
 # Case-insensitive matching of patterns
 shopt -s nocasematch
 
+# If set to "true", prints in minimal format with no ASCII image
+flag_minimal="false"
+
 # Text Format Constants
 reset='\e[0m'
 bold='\e[1m'
 underlined='\e[4m'
 
+### Color options 0-15 correspond to the 16-color palette printed by fetchpac 
+### Color option 16 is the default text color defined by your terminal
+### The actual colors displayed vary for each user, dependent on terminal settings
 color_default='\e[39m'          # 16 - default color defined by terminal
 
 color_black='\e[30m'            # 0
@@ -48,6 +54,13 @@ a3=6                            # a3 - ascii color of Arch Linux logo   (default
 c1=6                            # c1 - information headers              (default cyan)
 c2=2                            # c2 - information titles               (default green)
 c3=16                           # c3 - information text                 (default default)
+
+m1=6                            # m1 - minimal output (TOT)
+m2=1                            # m2 - minimal output (ORP)                            
+m3=4                            # m3 - minimal output (EXP, DEP)
+m4=5                            # m4 - minimal output (NAT, FOR)
+m5=3                            # m4 - minimal output (CAC)
+m6=2                            # m4 - minimal output (-Sy, -Su)
 
 ### A procedural timeline of how ASCII design and color is set:
 ### (1) From the fetchpac script, set default values for colors and system variables
@@ -101,6 +114,10 @@ main() {
     # --- End of user configurations ---
     
     convert_colors          # e.g. convert a1 from "3" to "\e[1m\e[33m" (bold yellow)
+
+    if [[ "$flag_minimal" == "true" ]]; then
+        print_minimal
+    fi
 
     get_ascii               # read ascii image into a variable
     print_ascii             # print ascii image to terminal
@@ -161,7 +178,6 @@ parse_args() {
                 [[ $1 == *"d"* ]] && ascii_design=$2 && tweak_ascii_colors
                 [[ $1 == *"r"* ]] && randomize_colors
 
-
                 # if parameter "-xyaz" contains an 'a'
                 # if $2 does not start with '-' AND $2 is not empty, a1=$2
                 # if $3 does not start with '-' AND $3 is not empty, a2=$3
@@ -181,6 +197,24 @@ parse_args() {
                     if [[ $2 != "-"* && ! -z $2 ]]; then c1=$2
                         if [[ $3 != "-"* && ! -z $3 ]]; then c2=$3 
                             if [[ $4 != "-"* && ! -z $4 ]]; then c3=$4
+                            fi
+                        fi
+                    fi
+                fi
+
+                # if parameter "-xycz" contains a 'm'
+                if [[ $1 == *"m"* ]]; then
+                    flag_minimal="true"
+                    
+                    if [[ $2 != "-"* && ! -z $2 ]]; then m1=$2
+                        if [[ $3 != "-"* && ! -z $3 ]]; then m2=$3 
+                            if [[ $4 != "-"* && ! -z $4 ]]; then m3=$4
+                                if [[ $4 != "-"* && ! -z $4 ]]; then m4=$5
+                                    if [[ $5 != "-"* && ! -z $4 ]]; then m5=$6
+                                        if [[ $6 != "-"* && ! -z $4 ]]; then m6=$7
+                                        fi
+                                    fi
+                                fi
                             fi
                         fi
                     fi
@@ -236,6 +270,13 @@ randomize_colors() {
     c1=$(( $RANDOM % 16 ))
     c2=$(( $RANDOM % 16 ))
     c3=$(( $RANDOM % 16 ))
+
+    m1=$(( $RANDOM % 16 ))
+    m2=$(( $RANDOM % 16 ))
+    m3=$(( $RANDOM % 16 ))
+    m4=$(( $RANDOM % 16 ))
+    m5=$(( $RANDOM % 16 ))
+    m6=$(( $RANDOM % 16 ))
 }
 
 convert_colors() {
@@ -248,6 +289,43 @@ convert_colors() {
     c1="${bold}\e[${color_nums[c1]}m"
     c2="${bold}\e[${color_nums[c2]}m"
     c3="${reset}\e[${color_nums[c3]}m"
+    
+    m1="${bold}\e[${color_nums[m1]}m"
+    m2="${bold}\e[${color_nums[m2]}m"
+    m3="${bold}\e[${color_nums[m3]}m"
+    m4="${bold}\e[${color_nums[m4]}m"
+    m5="${bold}\e[${color_nums[m5]}m"
+    m6="${bold}\e[${color_nums[m6]}m"
+}
+
+# Print minimal package info, then exit
+print_minimal() {
+    get_package_info
+    printf "\n\n"
+
+    # \e[99D moves all the way left
+    # \e[14C moves 14 spaces to the right
+    info="\e[4C${m1}TOT| ${pkg_total}\e[99D\e[14C ${m2}ORP| ${pkg_orphan}"       
+    printf '%b\n' "${info}"
+
+    info="\e[4C${m3}EXP| ${pkg_explicit}\e[99D\e[14C DEP| ${pkg_depends}"
+    printf '%b\n' "${info}"
+    
+    info="\e[4C${m4}NAT| ${pkg_native}\e[99D\e[14C FOR| ${pkg_foreign}"
+    printf '%b\n' "${info}"
+    
+    info="\e[4C${m5}CAC| ${pkg_cache_size}"
+    printf '%b\n' "${info}"
+
+    info="\e[4C${m6}-Sy| ${synchronize_time}"
+    printf '%b\n' "${info}"
+
+    info="\e[4C${m6}-Su| ${upgrade_time}"
+    printf '%b\n' "${info}"
+
+                                           
+    printf "\n\n"
+    exit
 }
 
 # read ascii image into a variable
