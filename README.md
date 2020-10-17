@@ -4,20 +4,27 @@
 <br>
 
 ### What is fetchpac?
-
 <img src="./assets/showcase/showcase_01.png" alt="" align="right" height="240px">
 
-Fetchpac is a command-line tool written in Bash for printing information about packages installed on your system in an aesthetic and visually pleasing way. It works for Arch Linux and Arch-based Linux distributions using the pacman package manager.
+- Command-line tool written in Bash
+- Print information about packages installed on your system
+- Works for Arch Linux and Arch-based Linux distributions using the pacman package manager
 
-The overall goal of fetchpac is to provide a quick and broad overview of packages installed on your system, all with a single-word command "fetchpac". The information displayed can then be used for system maintenance and tracking of installed packages. This information is presented alongside an ASCII image of a pacman chasing after the Arch Linux logo, so it can be used in screenshots of your system.
+### Overall Goals
+- Quick and broad overview of packages installed on your system
+- Simple to use, with a single-word command "fetchpac"
+- Used for system maintenance and tracking of installed packages
+- Aesthetic; presented alongside an ASCII image of a pacman chasing after a Linux logo, so it can be used in screenshots of your system
+- Lightweight and fast
+- Accurate; relies on package manager and system commands for querying of information
 
 ### Features
-
-It displays the total number of packages, split into different categories: explicit, dependency, native, foreign, orphan; the total size of package caches; and time of most recent full system upgrade and most recent synchronized package list.
+- Displays the total number of packages
+- Split into different categories: explicit, dependency, native, foreign, orphan; the total size of package caches on your system; and time of most recent full system upgrade and most recent synchronized package list.
+- Customize information, aesthetics, and displayed explanations (see below)
 
 ### Installation
-
-This package is hosted on the Arch User Repository at <a href="https://aur.archlinux.org/packages/fetchpac-git">https://aur.archlinux.org/packages/fetchpac-git</a>. You may also install the package manually:
+This package is hosted on the Arch User Repository at <a href="https://aur.archlinux.org/packages/fetchpac-git">https://aur.archlinux.org/packages/fetchpac-git</a>. Otherwise, you may install the package manually:
 ```
 git clone https://github.com/sky-aw/fetchpac.git
 cd fetchpac
@@ -25,7 +32,6 @@ make install
 ```
 
 ### Customization
-
 You can customize the display colors with 6 separate variables, 3 for the ASCII image, and 3 for the system and package information. Each variable has 17 color options. The final colors are selected using, from high to low precedence: command-line arguments, $HOME/.config/fetchpac/fetchpac.conf, /etc/fetchpac/fetchpac.conf. There is also an option to randomize all 6 color variables, which can be used alongside force-setting one or more of the variables.
 
 More options will continue to be added to customize the appearance, verbosity of displayed information, and explanations on package maintenance.
