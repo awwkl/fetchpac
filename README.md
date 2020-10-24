@@ -41,5 +41,8 @@ More options will continue to be added to customize the appearance, verbosity of
 Fetchpac was heavily inspired by tools such as screenfetch and neofetch that would "fetch" information about your system and display them in a similar format. The "pac" was so named because fetchpac displays package information, and utilizes the pacman package manager.  
 
 <p align="center">
-  <img src="./assets/showcase/showcase_02.png" alt="" height="240px">
+  <img src="./assets/showcase/showcase_03.png" alt="" height="240px">
+</p>
+<p align="center">
+  <img src="./assets/showcase/showcase_04.png">
 </p>
