@@ -34,7 +34,7 @@ make install
 ### Customization
 You can customize the display colors with 6 separate variables: 3 for the ASCII image, and 3 for the system and package information. Each variable has 17 color options. The final colors are selected using, from high to low precedence: command-line arguments, $HOME/.config/fetchpac/fetchpac.conf, /etc/fetchpac/fetchpac.conf. There is also an option to randomize all 6 color variables, which can be used alongside force-setting one or more of the variables.
 
-There are multiple ASCII images available to choose from (examples shown below). Similarly, you can customize it with: (i) command-line arguments, (ii) $HOME/.config/fetchpac/fetchpac.conf, (iii) /etc/fetchpac/fetchpac.conf
+There are multiple ASCII images available to choose from (see screenshots shown below). Similarly, you can customize it with: (i) command-line arguments, (ii) $HOME/.config/fetchpac/fetchpac.conf, (iii) /etc/fetchpac/fetchpac.conf
 
 There is a minimal option (example shown below), which also displays the system and package information, but omits the ASCII image.
 
