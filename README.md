@@ -3,9 +3,14 @@
 <h4 align="center">A command-line tool written in Bash for printing system package information.</h4>
 <br>
 
-### What is fetchpac?
-<img src="./assets/showcase/showcase_01.png" alt="" align="right" height="240px">
+<p>
+  <img src="./assets/showcase/showcase_01.png" alt="" height="240px">
+  <img src="./assets/showcase/showcase_03.png" alt="" height="240px">
+</p>
 
+<br>
+
+### What is fetchpac?
 - Command-line tool written in Bash
 - Print information about packages installed on your system
 - Works for Arch Linux and Arch-based Linux distributions using the pacman package manager
@@ -44,9 +49,6 @@ More options will continue to be added to customize the appearance, verbosity of
 
 Fetchpac was heavily inspired by tools such as screenfetch and neofetch that would "fetch" information about your system and display them in a similar format. The "pac" was so named because fetchpac displays package information, and utilizes the pacman package manager.  
 
-<p align="center">
-  <img src="./assets/showcase/showcase_03.png" alt="" height="240px">
-</p>
 <p align="center">
   <img src="./assets/showcase/showcase_04.png">
 </p>
