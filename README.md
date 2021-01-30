@@ -4,8 +4,8 @@
 <br>
 
 <p>
-  <img src="./assets/showcase/showcase_01.png" alt="" height="240px">
-  <img src="./assets/showcase/showcase_03.png" alt="" height="240px">
+  <img src="./assets/showcase/showcase_01.png" alt="" width="50%">
+  <img src="./assets/showcase/showcase_03.png" alt="" width="45%">
 </p>
 
 <br>
