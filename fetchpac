@@ -100,18 +100,18 @@ m6=2                            # m4 - minimal output (-Sy, -Su)
 ### upgrade_time            (Thu 30-Jul-2020 (14:49 PM))
 ### synchronize_time        (Thu 30-Jul-2020 (14:49 PM))
 
-# this function, main, is called at the end of this file
+# This function, main, is called at the end of this file, with command-line arguments passed to main()
 main() {
     get_system_info         # call script functions to detect system info
 
-    # --- Beginning of user configurations ---
+    # --- Beginning of user configurations that are read by fetchpac upon execution ---
 
     source /etc/fetchpac/fetchpac.conf 2> /dev/null             
     source ${HOME}/.config/fetchpac/fetchpac.conf 2> /dev/null 
 
     parse_args "$@"         # pass the arguments passed to main to parse_args()
     
-    # --- End of user configurations ---
+    # --- End of user configurations. Command-line arguments are passed after this and have higher precedence ---
     
     convert_colors          # e.g. convert a1 from "3" to "\e[1m\e[33m" (bold yellow)
 
@@ -133,6 +133,7 @@ main() {
     printf "\n"
 }
 
+# Get system information and store in variables that are later displayed
 get_system_info() {
     get_user
     get_hostname
@@ -142,6 +143,8 @@ get_system_info() {
     get_uptime
 }
 
+# Tweak the default colors of the ASCII design based on which ASCII design is going to be printed
+# Because each ASCII design (Manjaro vs Arch) will have different default colors
 tweak_ascii_colors() {
     case "${ascii_design}" in
         # Catch the MORE SPECIFIC designs first
@@ -279,6 +282,7 @@ randomize_colors() {
     m6=$(( $RANDOM % 16 ))
 }
 
+# Convert colors from simple representation to actual color code for terminal output (e.g. "3" => "\e[1m\e[33m")
 convert_colors() {
     color_nums=( 3{0..7} 9{0..7} 39 )       # array of ( 30 31 .. 37 90 91 .. 97 39 )
 
@@ -298,7 +302,8 @@ convert_colors() {
     m6="${bold}\e[${color_nums[m6]}m"
 }
 
-# Print minimal package info, then exit
+# Print minimal package information, then exit
+# print_minimal() does not print the ASCII design
 print_minimal() {
     get_package_info
     printf "\n\n"
@@ -328,7 +333,7 @@ print_minimal() {
     exit
 }
 
-# read ascii image into a variable
+# Read ascii image into a variable
 # ascii_height is vertical height of ascii image
 # ascii_len is horizontal length of ascii image
 get_ascii() {
@@ -422,7 +427,7 @@ EOF
     esac
 }
 
-# print ascii image out to terminal
+# Print ascii image out to terminal
 print_ascii() {
     # LC_ALL=${LANG:-C}
 
@@ -446,7 +451,7 @@ print_ascii() {
     LC_ALL=C
 }
 
-# print system information
+# Print system information
 # ${info} is a temp variable used to hold the formatted text to be printed by printf
 print_system_info() {
 
@@ -474,6 +479,7 @@ print_system_info() {
     printf "\n"
 }
 
+# Print package information
 print_package_info() {
     # ----- Packages -----
     info="${c1}----- Packages -----"
@@ -520,6 +526,8 @@ print_package_info() {
     printf '%b\n' "\e[${text_padding}C${info//\\n}"
 }
 
+# Print the pattern of 16 color blocks (2 rows of 8)
+# Each user's terminal will have different RGB Hex Codes for each of the 16 default colors
 print_color_blocks() {
     # newline
     printf "\n"
@@ -545,7 +553,7 @@ print_color_blocks() {
     printf "\n"
 }
 
-# get user's name
+# Get user's name
 # ${user}
 get_user() {
     user=${USER:-$(id -un || printf %s "${HOME/*\/}")}
@@ -561,7 +569,7 @@ get_hostname() {
     fi
 }
 
-# get distro name
+# Get name of distribution
 # ${distro}
 get_distro() {
     if type -p lsb_release >/dev/null; then
@@ -583,13 +591,13 @@ get_distro() {
     ascii_design=distro
 }
 
-# kernel version, e.g. "5.7.10-arch1-1"
+# Get kernel version, e.g. "5.7.10-arch1-1"
 # ${kernel_release}
 get_kernel_release() {
     kernel_release=$(uname -r)
 }
 
-# get device, e.g. "Inspiron 7590"
+# Get device, e.g. "Inspiron 7590"
 # ${device}
 get_device() {
     if [[   -f /sys/devices/virtual/dmi/id/product_name ||
@@ -601,8 +609,8 @@ get_device() {
     fi
 }
 
-# get uptime in format "2 days, 10 hours, 3 mins"
-# days and hours not shown if equal 0
+# Get uptime in format "2 days, 10 hours, 3 mins"
+# Days and hours not shown if equal 0
 # ${uptime}
 get_uptime() {
     if [[ -r /proc/uptime ]]; then
@@ -624,7 +632,7 @@ get_uptime() {
     uptime+="${uptime_mins} mins"
 }
 
-# get number of packages: total, explicit, dependencies, native, foreign
+# Get number of packages: total, explicit, dependencies, native, foreign
 # ${pkg_total}
 # ${pkg_explicit}
 # ${pkg_depends}
@@ -643,18 +651,18 @@ get_package_info() {
     get_upgrade_time
 }
 
-# get disk usage of package cache directory
-# remove everything from first space to end of parameter
+# Get disk usage of package cache directory
+# Remove everything from first space to end of parameter
 # ${pkg_cache_size}
 get_cache_size() {
     pkg_cache_size=$(du /var/cache/pacman/pkg/ -sh)
     pkg_cache_size=${pkg_cache_size/[[:space:]]*/}
 }
 
-# get time of most recent full system upgrade
-# first, grep log entry from pacman log
-# next, extract substring of time value
-# next, convert to desired time format
+# Get time of most recent full system upgrade
+# First, grep log entry from pacman log
+# Next, extract substring of time value
+# Next, convert to desired time format
 # ${upgrade_time}
 get_upgrade_time() {
     tmp=$(tac /var/log/pacman.log | grep -i -m1 "starting full system upgrade")
@@ -663,10 +671,10 @@ get_upgrade_time() {
     upgrade_time=$(date -d "${tmp}" "+%a %d-%b-%Y")
 }
 
-# get time of most recent synchronization of package lists
-# first, grep log entry from pacman log
-# next, extract substring of time value
-# next, convert to desired time format
+# Get time of most recent synchronization of package lists
+# First, grep log entry from pacman log
+# Next, extract substring of time value
+# Next, convert to desired time format
 # ${synchronize_time}
 get_synchronize_time() {
     tmp=$(tac /var/log/pacman.log | grep -i -m1 "synchronizing package lists")
@@ -675,7 +683,7 @@ get_synchronize_time() {
     synchronize_time=$(date -d "${tmp}" "+%a %d-%b-%Y")
 }
 
-# reset text formatting
+# This function resets text formatting
 reset_format() {
     printf '\e[0m'
 }
