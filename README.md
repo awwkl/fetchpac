@@ -31,9 +31,9 @@
 ### Installation
 This package is hosted on the Arch User Repository at <a href="https://aur.archlinux.org/packages/fetchpac-git">https://aur.archlinux.org/packages/fetchpac-git</a>. Alternatively, you may install the package manually:
 ```
-git clone https://github.com/sky-aw/fetchpac.git
-cd fetchpac
-make install
+$ git clone https://github.com/sky-aw/fetchpac.git
+$ cd fetchpac
+$ make install
 ```
 
 ### Customization
