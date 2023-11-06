@@ -1,6 +1,6 @@
 <h1 align="center">fetchpac</h1>
 
-<h4 align="center">A command-line tool written in Bash for printing system package information.</h4>
+<h4 align="center">My command-line tool written in Bash for printing system package information.</h4>
 <br>
 
 <p>
@@ -51,4 +51,7 @@ Fetchpac was heavily inspired by tools such as screenfetch and neofetch that wou
 
 <p align="center">
   <img src="./assets/showcase/showcase_04.png">
+</p>
+<p align="center">
+  <img src="./assets/showcase/showcase_02.png">
 </p>
